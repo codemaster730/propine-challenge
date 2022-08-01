@@ -1,6 +1,6 @@
-# CurrencyConverter
+# Propine Challenge
 
-## What to solve
+## Requirements
 
 * Given no parameters, return the latest portfolio value per token in USD.
 * Given a token, return the latest portfolio value for that token in USD.
@@ -17,29 +17,7 @@
 * token: The token symbol
 * amount: The amount transacted
 
-| timestamp | transaction_type | token | amount |
-|:---:|:---:|:---:|:---:|
-| 1571967208 | DEPOSIT | BTC | 0.29866 |
-| 1571967200 | DEPOSIT | ETH | 0.68364 |
-| 1571967189 | WITHDRAWAL | XRP | 0.493839 |
-
-
----
-
-## Dependencies
-
-> **yargs:** Helps build interactive command line tools, by parsing arguments and generating an elegant user interface.
-
-> **fs:** Provides a lot of very useful functionality to access and interact with the file system.
-
-> **papaparse:** Fast and powerful CSV parser for the browser that supports web workers and streaming large files. Converts CSV to JSON and JSON to CSV.
-
-> **node-fetch:** A light-weight module that brings Fetch API to node.js.
-
-
----
-
-## How to run the program
+## Usage
 
 > Copy the `transactions.csv` in current folder.
 
@@ -110,7 +88,7 @@ node index.js portfolio -t BTC -d 2019-10-25
 
 ---
 
-## Design decisions to solve this problem
+## Design decisions
 
 ### 1. Setting Configuration variables
 
@@ -129,90 +107,8 @@ I have tried `csv-parser` and `papaparse` module to parse the contents of csv.
 | **csv-parser** | 70 | 740480 |
 | **papaparse** | 45 | 1174560 |
 
-### 3. Command Line Program
 
-I have used `yargs` module to create command-line commands in node.js and makes command-line arguments flexible and easy to use.
-
-* Command without any arguments
-* Command with token as an argument
-* Command with date as an argument
-* Command with both token and date as an arguments
-
-#### How to setup yargs
-
-```js
- yargs(hideBin(process.argv))
-  .usage('node $0 <command> [options]')
-  .command('portfolio', 'List the portfolio of the token', yargs => {
-    return yargs
-      .option({
-        token: {
-          alias: 't',
-          description: 'Enter token name',
-          type: 'string',
-        },
-        date: {
-          alias: 'd',
-          description: 'Enter date in YYYY-MM-DD format',
-          type: 'string',
-        },
-      })
-      .strictOptions()
-      .check((arg, options) => {
-        arg.command = arg._[0]
-        
-        /// check token
-        if ('token' in arg) {
-          if (!arg.token) {
-            throw new Error('Enter token name')
-          }
-        }
-        
-        /// check date and convert it to epoch timestamp
-        if ('date' in arg) {
-          if (arg.date) {
-            if (isValidDate(arg.date)) {
-              let [startTimestamp, endTimestamp] = dateToEpochTime(arg.date)
-              arg.startTimestamp = startTimestamp
-              arg.endTimestamp = endTimestamp
-            } else {
-              throw new Error('Enter valid date in YYYY-MM-DD format')
-            }
-          } else {
-            throw new Error('Enter date')
-          }
-        }
-
-        return true
-      })
-  })
-  .strictCommands()
-  .check((arg, options) => {
-    if (!(arg._[0] in COMMAND)) {
-      throw new Error('Enter valid command')
-    }
-    return true
-  })
-  .help()
-  .alias('version', 'v')
-  .alias('help', 'h').argv
-```
-
-#### I have created:
-
-* `portfolio` command
-  * `--token` and `-t` options to pass the token name
-  * `--date` and `-d` option to pass the date.
-  * Any other options will be invalid as `strictOptions()`
-* Any other commands will be invalid as `strictCommands()`.
-
-If we need any other commands or options in the future, we can add it later.
-
-To make the code more manageable, I have used the command approach as mor multiple commands may be needed.
-
-If token or date is passed as an arguments, they are validated before passing to the main function.
-
-### 4. Error Handling
+### 3. Error Handling
 
 #### 1). If token name is missing
 
@@ -246,36 +142,36 @@ We console the error `Given token not found`.
 
 We console the error `No token transacted on given date`.
 
-### 5. Generating start epoch time and end epoch time for a given date.
+## Structure of the source code
 
-For a given date, it is needed to get start epoch timestamp and end epoch timestamp as epoch timestamp is in the csv file.
+├── LICENSE
+├── package.json
+├── README.md
+├── src
+│  ├── config.js
+│  ├── command_cli.js
+│  ├── services.js
+│  └── utils.js
+└── index.js
 
-By default, javascript returns the time in ms considering the timezone so
-timezoneOffset is deducted to convert it into UTC epoch time.
+I made the structure of the source code simple, no folders for category because it's enough for 4 files.
+I like keeping things simple - In fact, 'small is good, short is better and simple is best'.
 
-startTimestamp and endTimestamp are embedded inside argv.
+### config.js
+This is where we put the configuration files such as file names, and the urls to be fetched.
+We can also set urls and api key as environment variables if needed.
 
-```js
-const dateToTimeStamp = date => {
-  date = new Date(`${date}T00:00:00`)
-  let userTimezoneOffset = date.getTimezoneOffset() * 60
+### command_cli.js
+This is where we handle the command-line commands in the project.
+I have used `yargs` module to create command-line commands in node.js and makes command-line arguments flexible and easy to use.
 
-  const startTimestamp = date.getTime() / 1000 - userTimezoneOffset
-  const endTimestamp = startTimestamp + 24 * 60 * 60
+### services.js
+This is where we implement functionalities in commands.
+Currently we only have 'portfolio' command and for this command, getPortfolio function is defined in this file.
 
-  return [startTimestamp, endTimestamp]
-}
-```
+### utils.js
+This file contains the various utilization functions.
 
-### 6. Convert the portfolio value of token to USD using CryptoCompare API
-
-I have created free API key to make use of this endpoint in our app which I have stored in config.js file.
-
-I have gone through the cryptocompare API documentation where I found https://min-api.cryptocompare.com/data/price REST API
-endpoint to be used to convert from one currency to another.
-
-Three params are required to call this endpoint.
-
-* fsym: The cryptocurrency symbol of interest \[ Min length - 1\] \[ Max length - 30\]
-* tsysms: Comma separated cryptocurrency symbols list to convert into \[ Min length - 1\] \[ Max length - 500\]
-* api_key
+convertCurrency: Get the current price of any cryptocurrency in any other currency that you need.
+isValidDate: Check if input the date is vaild.
+dateToTimeStamp: Convert date format to timestamp format.

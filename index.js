@@ -1,6 +1,6 @@
 import argv from './command_cli.js'
-import { getPortfolio } from './function.js'
-import { COMMAND, fileName } from './config.js';
+import { getPortfolio } from './src/function.js'
+import { COMMAND, fileName } from './src/config.js';
 import path from 'path'
 import { fileURLToPath } from 'url'
 
