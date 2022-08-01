@@ -144,6 +144,7 @@ We console the error `No token transacted on given date`.
 
 ## Structure of the source code
 
+<pre>
 ├── LICENSE
 ├── package.json
 ├── README.md
@@ -153,6 +154,7 @@ We console the error `No token transacted on given date`.
 │  ├── services.js
 │  └── utils.js
 └── index.js
+</pre>
 
 I made the structure of the source code simple, no folders for category because it's enough for 4 files.
 I like keeping things simple - In fact, 'small is good, short is better and simple is best'.
