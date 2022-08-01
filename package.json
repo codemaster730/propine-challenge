@@ -1,0 +1,20 @@
+{
+  "name": "crypto-portfolio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Chris Lee",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^3.2.5",
+    "papaparse": "^5.3.2",
+    "yargs": "^17.5.1"
+  }
+}
